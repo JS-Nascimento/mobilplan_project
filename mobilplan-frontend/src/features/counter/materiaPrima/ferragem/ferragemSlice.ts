@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../../../app/store";
 
-interface Ferragem {
+export interface Ferragem {
   id: number;
   descricao: string
   cor: string | null;
@@ -18,7 +18,7 @@ const ferragem: Ferragem = {
   "id": 1,
   "descricao": "Parafuso 3.5x16mm Ciser - 100un",
   "cor": "Bicromatizado",
-  "unidade": "pacote",
+  "unidade": "PACOTE",
   "preco": 5.99,
   "precificacao": "UNIDADE",
   "imagem": "tesre",
@@ -51,4 +51,8 @@ const ferragemSlice = createSlice({
 
 export const selectFerragem = (state: RootState,) => state.ferragens;
 
+export const selectFerragemId = (state: RootState, id: number): Ferragem | null => {
+  const ferragem = state.ferragens.find((ferragem) => ferragem.id === id);
+  return ferragem || null;
+}
 export default ferragemSlice.reducer;

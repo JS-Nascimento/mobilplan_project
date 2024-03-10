@@ -1,5 +1,5 @@
-import { ThemeProvider } from '@mui/system';
-import { Routes, Route, Link } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { Routes, Route} from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import { Header } from './components/Header';
 import { Layout } from './components/Layout';
@@ -16,10 +16,10 @@ function App() {
     <Header/>
     <Layout>
       <Routes>
-        <Route path="/" element={<ListarFerragem />} />
+        <Route path="/" />
         <Route path="/ferragem" element={<ListarFerragem />} />
         <Route path="/ferragem/criar" element={<CriarFerragem />} />
-        <Route path="/ferragem/editar/:id" element={<AlterarFerragem />} />
+        <Route path="/ferragem/:id" element={<AlterarFerragem />} />
 
         <Route path="*" element={<Typography variant="h3" component="h1">404</Typography>} />
       </Routes>
