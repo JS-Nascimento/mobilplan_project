@@ -20,10 +20,13 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
   columns,
   ...props
 }) => {
+ // Mova o uso dos hooks para dentro do corpo do componente
+
   return (
     <ThemeProvider theme={appTheme}>
       <DataGrid
         rows={rows}
+    
         columns={columns}
         localeText={{
           toolbarColumns: "Colunas",
@@ -91,6 +94,12 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
             color: appTheme.palette.primary.contrastText,
             ".MuiDataGrid-columnHeaderTitle": {
               fontWeight: { xs: 600, sm: 600, md: 600, lg: 600 },
+            },
+          },
+          '.Mui-selected': { // Esta classe é aplicada automaticamente às linhas selecionadas
+            backgroundColor: 'rgba(96, 0, 34, 0.12) !important', // Sobreposição de estilo para garantir aplicação
+            '&:hover': {
+              backgroundColor:'rgba(96, 0, 34, 0.12) !important', 
             },
           },
           // Adicione mais estilos personalizados aqui conforme necessário

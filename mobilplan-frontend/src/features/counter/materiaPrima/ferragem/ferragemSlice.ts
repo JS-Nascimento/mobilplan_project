@@ -37,13 +37,17 @@ const ferragemSlice = createSlice({
   initialState: initialState,
   reducers: {
     criarFerragem: (state, action: PayloadAction<Ferragem>) => {
+      state.push(action.payload);
 
     },
-    alterarFerragem: (state, action: PayloadAction<number>) => {
+    alterarFerragem: (state, action) => {
+      const index = state.findIndex((ferragem) => ferragem.id === action.payload.id);
 
+      state[index] = action.payload;
     },
-    removerFerragem: (state, action: PayloadAction<number>) => {
-
+    removerFerragem: (state, action) => {
+      const index = state.findIndex((ferragem) => ferragem.id === action.payload.id);
+      state.splice(index, 1);
     },
   },
 });
@@ -56,3 +60,4 @@ export const selectFerragemId = (state: RootState, id: number): Ferragem | null 
   return ferragem || null;
 }
 export default ferragemSlice.reducer;
+export const { criarFerragem, alterarFerragem, removerFerragem } = ferragemSlice.actions;
