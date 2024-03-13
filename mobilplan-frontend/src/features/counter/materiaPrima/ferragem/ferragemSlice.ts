@@ -15,7 +15,7 @@ export interface Ferragem {
 }
 
 const ferragem: Ferragem = {
-  "id": 1,
+  "id": 8,
   "descricao": "Parafuso 3.5x16mm Ciser - 100un",
   "cor": "Bicromatizado",
   "unidade": "PACOTE",
@@ -46,9 +46,12 @@ const ferragemSlice = createSlice({
       state[index] = action.payload;
     },
     removerFerragem: (state, action) => {
-      const index = state.findIndex((ferragem) => ferragem.id === action.payload.id);
-      state.splice(index, 1);
+      const index = state.findIndex((ferragem) => ferragem.id === action.payload);
+      if (index !== -1) {
+        state.splice(index, 1);
+      }
     },
+
   },
 });
 

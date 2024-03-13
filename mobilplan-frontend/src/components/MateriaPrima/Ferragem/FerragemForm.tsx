@@ -15,8 +15,8 @@ import {
   CriadoEmLabel,
 } from "../../DateAuditLabel/DateAuditLabel";
 import { LabelIDNumber } from "../../NumberIDLabel";
-import BotaoPrimario from "../../PrimaryButton/BotaoPrimario";
-import BotaoSecundario from "../../PrimaryButton/BotaoSecundario";
+import BotaoPrimario from "../../CustomButtons/BotaoPrimario";
+import BotaoSecundario from "../../CustomButtons/BotaoSecundario";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
