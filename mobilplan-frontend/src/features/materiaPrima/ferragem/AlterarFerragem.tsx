@@ -1,36 +1,30 @@
-import { Box, Paper, SelectChangeEvent, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material/Select";
 import { ChangeEvent, useState } from "react";
-import { useAppDispatch } from "../../../../app/hooks";
-import FerragemForm from "../../../../components/MateriaPrima/Ferragem/FerragemForm";
-import { Ferragem, criarFerragem } from "./ferragemSlice";
+import { useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import FerragemForm from "../../../components/MateriaPrima/Ferragem/FerragemForm";
+import { Ferragem, alterarFerragem, selectFerragemId } from "./ferragemSlice";
+import {useSnackbar} from "notistack";
 
-export const CriarFerragem = () => {
+export const AlterarFerragem = () => {
+  const id = Number(useParams<{ id: string }>().id || 0);
+  const ferragem = useAppSelector((state) => selectFerragemId(state, id));
   const [isDisabled, setIsDisabled] = useState(false);
-  const [ferragem, setFerragem] = useState<Ferragem>({
-    id: 0,
-    descricao: "",
-    cor: "",
-    unidade: "",
-    preco: 0.0,
-    precificacao: "",
-    imagem: "",
-    criadoEm: "",
-    atualizadoEm: "",
-    tenantId: "",
-  });
-
   const [ferragemState, setFerragemState] = useState<Ferragem>(
     ferragem || ({} as Ferragem)
   );
+  const { enqueueSnackbar } = useSnackbar();
 
   const dispatch = useAppDispatch();
 
-  const handleSubmit = async (
+  async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  ): Promise<void> {
     event.preventDefault();
-    dispatch(criarFerragem(ferragemState));
-  };
+    dispatch(alterarFerragem(ferragemState));
+    enqueueSnackbar("Ferragem alterada com sucesso!", { variant: "success" });
+  }
 
   const handleChange = (
     event: ChangeEvent<
@@ -66,13 +60,13 @@ export const CriarFerragem = () => {
           },
         }}
       >
-        Criar Ferragem
+        Editar Ferragem
       </Typography>
       <Paper>
         <FerragemForm
           ferragem={ferragemState}
           isDisabled={isDisabled}
-          onSubmit={handleSubmit} // Correto
+          onSubmit={handleSubmit}
           handleChange={handleChange}
           handleSelect={handleSelect}
         />

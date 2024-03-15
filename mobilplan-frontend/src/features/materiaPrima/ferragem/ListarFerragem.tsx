@@ -1,63 +1,77 @@
 import {Create} from "@mui/icons-material";
 import {Box, Grid, Typography} from "@mui/material";
-import {GridColDef, GridRenderCellParams, GridRowParams, GridRowsProp,} from "@mui/x-data-grid";
-import React, {useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../../../app/hooks";
-import CustomDataGrid from "../../../../components/CustomDataGrid/CustomDataGrid";
-import {removerFerragem, selectFerragem} from "./ferragemSlice";
-import BotaoImportar from "../../../../components/CustomButtons/BotaoImportar";
+import {GridColDef, GridFilterModel, GridPaginationModel, GridRowParams, GridRowsProp,} from "@mui/x-data-grid";
+import React, {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import CustomDataGrid from "../../../components/CustomDataGrid/CustomDataGrid";
+import {useDeleteFerragemMutation, useGetFerragensQuery} from "./ferragemSlice";
+import BotaoImportar from "../../../components/CustomButtons/BotaoImportar";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import CustomButton from "../../../../components/CustomButtons/CustomButton";
+import CustomButton from "../../../components/CustomButtons/CustomButton";
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ErrorSnackbar from "../../../../components/SnackErrorBar/ErrorSnackbar";
-import {ConfirmationDialog} from "../../../../components/CustomModals/ConfirmationDialog";
+import ErrorSnackbar from "../../../components/SnackErrorBar/ErrorSnackbar";
+import {ConfirmationDialog} from "../../../components/CustomModals/ConfirmationDialog";
+import {useSnackbar} from "notistack";
+import {Content, Pagination} from "../../../types/ferragem";
+import { skipToken } from "@reduxjs/toolkit/query";
+import {formatarPreco} from "../../../utils/formatNumersHelper";
 
 export const ListarFerragem = () => {
-    const ferragens = useAppSelector(selectFerragem);
     const navigate = useNavigate();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [errorSnackbarKey, setErrorSnackbarKey] = useState<number>(0);
     const [openDialog, setOpenDialog] = useState(false);
-    const dispatch = useAppDispatch();
+    const {enqueueSnackbar} = useSnackbar();
+    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+        pageSize: 0,
+        page: 0,
+    });
+    const [searchText, setSearchText] = useState<string>("");
 
-    const rows: GridRowsProp = ferragens.map((ferragem) => ({
+    const filterOptions: Pagination = {
+       page: paginationModel.page,
+       size: paginationModel.pageSize,
+    };
+    const {data, isFetching, isError, error} = useGetFerragensQuery(filterOptions);
+    const [deleteFerragem, deleteFerragemStatus] = useDeleteFerragemMutation();
+
+    const rows: GridRowsProp = data ? data.content.map((ferragem: Content) => ({
         id: ferragem.id,
         imagem: ferragem.imagem,
         descricao: ferragem.descricao,
         cor: ferragem.cor,
         unidade: ferragem.unidade,
-        preco: ferragem.preco,
+        preco: formatarPreco(ferragem.preco.toString()),
         precificacao: ferragem.precificacao,
         alteradoEm: ferragem.atualizadoEm,
-    }));
+    })) : [];
 
     const columns: GridColDef[] = [
         {
             field: "id",
             headerName: "#ID",
             width: 25,
-            resizable: true,
+            headerAlign:'center',  align: 'center',
         },
-        {field: "imagem", headerName: "Imagem", width: 75, resizable: true},
+        {field: "imagem", headerName: "Imagem", width: 75,headerAlign:'center',  align: 'center' },
         {field: "descricao", headerName: "Descrição", flex: 1},
-        {field: "cor", headerName: "Cor", width: 150, resizable: true},
-        {field: "unidade", headerName: "Unidade", width: 100, resizable: true},
-        {field: "preco", headerName: "Preço", width: 100, resizable: true},
+        {field: "cor", headerName: "Cor", width: 150, headerAlign:'center',  align: 'center'},
+        {field: "unidade", headerName: "Unidade", width: 100, headerAlign:'center',  align: 'center'},
+        {field: "preco", headerName: "Preço", width: 100, headerAlign:'right',  align: 'right'},
         {
             field: "precificacao",
             headerName: "Precificado por",
             width: 150,
-            resizable: true,
+            headerAlign:'center',  align: 'center'
         },
         {
             field: "alteradoEm",
             headerName: "Alterado em",
             width: 200,
-            resizable: true,
+            headerAlign:'right',  align: 'right',
         },
     ];
     const handleRowClick = (params: GridRowParams) => {
@@ -67,7 +81,6 @@ export const ListarFerragem = () => {
 
     const handleEditClick = () => {
         if (selectedId !== null) {
-            console.log("selectedId: ", selectedId);
             navigate(`/ferragem/${selectedId}`);
         } else {
             setErrorMessage('Por favor, selecione uma linha para editar.');
@@ -84,21 +97,42 @@ export const ListarFerragem = () => {
     const handleDeleteClick = () => {
         if (selectedId !== null) {
             setOpenDialog(true);
+
         } else {
-            handleError('Por favor, selecione uma linha para deletar.');
+            enqueueSnackbar('Por favor, selecione uma linha para deletar.');
         }
     };
 
-    const handleConfirmDelete = () => {
-        dispatch(removerFerragem(selectedId));
+    async function handleConfirmDelete() {
+        if (selectedId === null) {
+            enqueueSnackbar('Por favor, selecione uma linha para deletar.');
+            return;
+        }
+        await deleteFerragem(selectedId);
         setSelectedId(null); // Resetar a seleção
         setOpenDialog(false);
+
     };
 
-    const [paginationModel, setPaginationModel] = React.useState({
-        pageSize: 20,
-        page: 0,
-    });
+    useEffect(() => {
+        if (deleteFerragemStatus.isSuccess) {
+            enqueueSnackbar("Ferragem deletada com sucesso!", {variant: "success"});
+        }
+        if (deleteFerragemStatus.isError) {
+            enqueueSnackbar("Erro ao deletar ferragem!", {variant: "error"});
+        }
+    }, [deleteFerragemStatus, enqueueSnackbar]);
+
+    function handlePaginationModel(newPaginationModel: GridPaginationModel) {
+        setPaginationModel(() => ({
+            page : filterOptions.page,
+            pageSize : filterOptions.size,
+        }));
+    }
+
+    function handleFilterChange(filterModel: GridFilterModel) {
+        console.log("filter model change");
+    }
 
     return (
         <Box maxWidth="lg" sx={{mt: 4, mb: 4}}>
@@ -150,6 +184,7 @@ export const ListarFerragem = () => {
                             pl: 3, pr: 3,
                             height: 36, // Altura fixa para o botão, ajuste conforme necessário
                             minHeight: 36,
+                            fontSize: {xs: 10, sm: 12, md: 14},
                             ':hover': {
                                 color: '#3d3835',
                                 bgcolor: 'rgba(7, 55, 99, 0.5)',
@@ -168,6 +203,7 @@ export const ListarFerragem = () => {
                             pr: 3,
                             height: 36,
                             minHeight: 36,
+                            fontSize: {xs: 10, sm: 12, md: 14},
                             ':hover': {
                                 color: '#3d3835',
                                 bgcolor: 'rgba(38, 95, 41, 0.5)',
@@ -185,27 +221,33 @@ export const ListarFerragem = () => {
                             pl: 3, pr: 3,
                             height: 36,
                             minHeight: 36,
+                            fontSize: {xs: 10, sm: 12, md: 14},
                             ':hover': {
                                 color: '#3d3835',
                                 bgcolor: 'rgba(102, 0, 0, 0.5)',
                             },
                         }}/>
                     <BotaoImportar larguraBotaoMenu="20px"
-                                   sx={{pl: 3, pr: 3,
+                                   sx={{
+                                       pl: 3, pr: 3,
                                        height: 36, // Altura fixa para o botão, ajuste conforme necessário
                                        minHeight: 36,
-                                   fontSize: {xs:10, sm: 12, md: 14}}}
+                                       fontSize: {xs: 10, sm: 12, md: 14}
+                                   }}
                                    startIcon={<FileUploadIcon/>}
                                    variant="contained"
                                    color="secondary"/>
                 </Grid>
             </Grid>
             <CustomDataGrid
-                disableColumnResize={false}
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
                 rows={rows}
                 columns={columns}
+                isFetching={isFetching}
+                totalRows={data?.totalElements ?? 0}
+                totalPages={data?.totalPages ?? 0}
+                paginationModel={paginationModel}
+                handlePaginationModel={handlePaginationModel}
+                handleFilterChange={handleFilterChange}
                 onRowClick={handleRowClick}
             />
             <ConfirmationDialog
@@ -218,11 +260,3 @@ export const ListarFerragem = () => {
         </Box>
     );
 };
-
-function renderNameCell(rowData: GridRenderCellParams) {
-    return (
-        <Link style={{textDecoration: "none"}} to={`/ferragem/${rowData.row.id}`}>
-            <Typography color={"primary.contrastText"}>{rowData.row.id}</Typography>
-        </Link>
-    );
-}

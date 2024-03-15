@@ -9,7 +9,7 @@ import {
   TextField,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import { Ferragem } from "../../../features/counter/materiaPrima/ferragem/ferragemSlice";
+import { Ferragem } from "../../../features/materiaPrima/ferragem/ferragemSlice";
 import {
   AtualizadoEmLabel,
   CriadoEmLabel,
