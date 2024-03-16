@@ -1,16 +1,13 @@
 
 export default interface Principal {
     content:          Content[];
-    pageable:         Pageable;
-    last:             boolean;
-    totalElements:    number;
-    totalPages:       number;
-    size:             number;
-    number:           number;
-    sort:             Sort;
-    first:            boolean;
-    numberOfElements: number;
-    empty:            boolean;
+    size:          number;
+    totalElements: number;
+    page:          number;
+    totalPages:    number;
+    first:         boolean;
+    last:          boolean;
+    empty:         boolean;
 }
 
 export interface Content {
@@ -29,19 +26,4 @@ export interface Content {
 export interface Pagination{
     page: number;
     size: number;
-}
-
-export interface Pageable {
-    pageNumber: number;
-    pageSize:   number;
-    sort?:       Sort;
-    offset?:     number;
-    paged?:      boolean;
-    unpaged?:    boolean;
-}
-
-export interface Sort {
-    empty:    boolean;
-    sorted:   boolean;
-    unsorted: boolean;
 }

@@ -15,7 +15,7 @@ export function CustomGridToolbar() {
     <GridToolbarContainer
       sx={{
         backgroundColor: 'background.default', // Cor de fundo do tema
-        color: '#d9d9d9', // Cor do texto personalizada
+        color: '#d9d9d9',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

@@ -39,10 +39,12 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getFerragens: builder.query<Principal, Pagination>({
             query: (params) => ({
-                url: mountUrlParams(params) ,
+                url: mountUrlParams(params),
                 method: 'POST',
                 body: {},
             }),
+            providesTags: (result) =>
+                result ? [{ type: 'Ferragens', id: 'LIST' }] : [],
         }),
         createFerragem: builder.mutation<Content, Partial<Content>>({
             query: (ferragem) => ({
@@ -50,6 +52,7 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: ferragem,
             }),
+            invalidatesTags: [{ type: 'Ferragens', id: 'LIST' }],
         }),
         updateFerragem: builder.mutation<Content, { id: number; data: Partial<Content> }>({
             query: ({ id, data }) => ({
@@ -57,16 +60,17 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
+            invalidatesTags: [{ type: 'Ferragens', id: 'LIST' }],
         }),
         deleteFerragem: builder.mutation<void, number>({
             query: (id) => ({
                 url: `${endpoint}/${id}`,
                 method: 'DELETE',
             }),
+            invalidatesTags: [{ type: 'Ferragens', id: 'LIST' }],
         }),
     }),
 });
-
 
 const ferragem: Ferragem = {
     "id": 8,

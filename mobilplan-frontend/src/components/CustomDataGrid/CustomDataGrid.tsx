@@ -12,7 +12,6 @@ interface CustomDataGridProps extends Omit<DataGridProps, "rows" | "columns"> {
     totalPages: number;
     paginationModel?: PaginationModelProps;
     handlePaginationModel?: (pageChange: PaginationModelProps) => void;
-    handleFilterChange?: (filterModel: GridFilterModel) => void;
 }
 
 type PaginationModelProps = {
@@ -31,7 +30,6 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
                                                            totalPages,
                                                            paginationModel,
                                                            handlePaginationModel,
-                                                           handleFilterChange,
                                                            ...props
                                                        }) => {
 
@@ -39,16 +37,15 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
     return (
         <ThemeProvider theme={appTheme}>
             <DataGrid
+                density={"compact"}
                 rows={rows}
                 columns={columns}
                 loading={isFetching}
                 paginationModel={paginationModel}
-                filterMode={"server"}
                 paginationMode={"server"}
                 rowCount={totalRows}
                 pageSizeOptions={[2, 5, 10, 20, 50, 100]}
                 onPaginationModelChange={handlePaginationModel}
-                onFilterModelChange={handleFilterChange}
                 localeText={{
                     toolbarColumns: "Colunas",
                     toolbarColumnsLabel: "Colunas",
@@ -110,6 +107,7 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
                 }}
                 {...props} // Espalha outras props do DataGrid aqui
                 sx={{
+
                     "& .MuiDataGrid-columnHeaders": {
                         backgroundColor: appTheme.palette.primary.main,
                         color: appTheme.palette.primary.contrastText,

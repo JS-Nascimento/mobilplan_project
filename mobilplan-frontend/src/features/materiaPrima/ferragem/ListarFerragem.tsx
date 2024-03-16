@@ -1,44 +1,40 @@
-import {Create} from "@mui/icons-material";
-import {Box, Grid, Typography} from "@mui/material";
-import {GridColDef, GridFilterModel, GridPaginationModel, GridRowParams, GridRowsProp,} from "@mui/x-data-grid";
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import CustomDataGrid from "../../../components/CustomDataGrid/CustomDataGrid";
-import {useDeleteFerragemMutation, useGetFerragensQuery} from "./ferragemSlice";
-import BotaoImportar from "../../../components/CustomButtons/BotaoImportar";
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import CustomButton from "../../../components/CustomButtons/CustomButton";
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {Box, Grid, Typography} from '@mui/material';
+import {GridColDef, GridPaginationModel, GridRowParams, GridRowsProp} from '@mui/x-data-grid';
+import {useSnackbar} from 'notistack';
+import CustomDataGrid from '../../../components/CustomDataGrid/CustomDataGrid';
+import {ferragensApiSlice, useDeleteFerragemMutation, useGetFerragensQuery} from './ferragemSlice';
+import CustomButton from '../../../components/CustomButtons/CustomButton';
+import ErrorSnackbar from '../../../components/SnackErrorBar/ErrorSnackbar';
+import {ConfirmationDialog} from '../../../components/CustomModals/ConfirmationDialog';
+import {Content} from '../../../types/ferragem';
+import {formatarPreco} from '../../../utils/formatNumersHelper';
+import {Create} from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ErrorSnackbar from "../../../components/SnackErrorBar/ErrorSnackbar";
-import {ConfirmationDialog} from "../../../components/CustomModals/ConfirmationDialog";
-import {useSnackbar} from "notistack";
-import {Content, Pagination} from "../../../types/ferragem";
-import { skipToken } from "@reduxjs/toolkit/query";
-import {formatarPreco} from "../../../utils/formatNumersHelper";
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import BotaoImportar from '../../../components/CustomButtons/BotaoImportar';
+import {apiSlice} from "../../api/apiSlice";
 
 export const ListarFerragem = () => {
     const navigate = useNavigate();
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const [showError, setShowError] = useState<boolean>(false);
-    const [errorMessage, setErrorMessage] = useState<string>('');
-    const [errorSnackbarKey, setErrorSnackbarKey] = useState<number>(0);
-    const [openDialog, setOpenDialog] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
-    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-        pageSize: 0,
-        page: 0,
+    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({pageSize: 10, page: 0});
+    const {data, isFetching} = useGetFerragensQuery({
+        page: paginationModel.page, // A API espera que a paginação comece de 1
+        size: paginationModel.pageSize,
     });
-    const [searchText, setSearchText] = useState<string>("");
-
-    const filterOptions: Pagination = {
-       page: paginationModel.page,
-       size: paginationModel.pageSize,
-    };
-    const {data, isFetching, isError, error} = useGetFerragensQuery(filterOptions);
     const [deleteFerragem, deleteFerragemStatus] = useDeleteFerragemMutation();
 
-    const rows: GridRowsProp = data ? data.content.map((ferragem: Content) => ({
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [errorSnackbarKey, setErrorSnackbarKey] = useState<number>(0);
+    const [showError, setShowError] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
+
+    const rows: GridRowsProp = data?.content.map((ferragem: Content) => ({
         id: ferragem.id,
         imagem: ferragem.imagem,
         descricao: ferragem.descricao,
@@ -47,35 +43,35 @@ export const ListarFerragem = () => {
         preco: formatarPreco(ferragem.preco.toString()),
         precificacao: ferragem.precificacao,
         alteradoEm: ferragem.atualizadoEm,
-    })) : [];
+    })) || [];
 
     const columns: GridColDef[] = [
         {
             field: "id",
             headerName: "#ID",
             width: 25,
-            headerAlign:'center',  align: 'center',
+            headerAlign: 'center', align: 'center',
         },
-        {field: "imagem", headerName: "Imagem", width: 75,headerAlign:'center',  align: 'center' },
+        {field: "imagem", headerName: "Imagem", width: 75, headerAlign: 'center', align: 'center'},
         {field: "descricao", headerName: "Descrição", flex: 1},
-        {field: "cor", headerName: "Cor", width: 150, headerAlign:'center',  align: 'center'},
-        {field: "unidade", headerName: "Unidade", width: 100, headerAlign:'center',  align: 'center'},
-        {field: "preco", headerName: "Preço", width: 100, headerAlign:'right',  align: 'right'},
+        {field: "cor", headerName: "Cor", width: 150, headerAlign: 'center', align: 'center'},
+        {field: "unidade", headerName: "Unidade", width: 100, headerAlign: 'center', align: 'center'},
+        {field: "preco", headerName: "Preço", width: 100, headerAlign: 'right', align: 'right'},
         {
             field: "precificacao",
             headerName: "Precificado por",
             width: 150,
-            headerAlign:'center',  align: 'center'
+            headerAlign: 'center', align: 'center'
         },
         {
             field: "alteradoEm",
             headerName: "Alterado em",
             width: 200,
-            headerAlign:'right',  align: 'right',
+            headerAlign: 'right', align: 'right',
         },
     ];
+
     const handleRowClick = (params: GridRowParams) => {
-        console.log("params: ", params);
         setSelectedId(params.id as number);
     };
 
@@ -109,10 +105,11 @@ export const ListarFerragem = () => {
             return;
         }
         await deleteFerragem(selectedId);
+        ferragensApiSlice.util.invalidateTags(['Ferragens']);
         setSelectedId(null); // Resetar a seleção
         setOpenDialog(false);
 
-    };
+    }
 
     useEffect(() => {
         if (deleteFerragemStatus.isSuccess) {
@@ -123,19 +120,12 @@ export const ListarFerragem = () => {
         }
     }, [deleteFerragemStatus, enqueueSnackbar]);
 
-    function handlePaginationModel(newPaginationModel: GridPaginationModel) {
-        setPaginationModel(() => ({
-            page : filterOptions.page,
-            pageSize : filterOptions.size,
-        }));
-    }
 
-    function handleFilterChange(filterModel: GridFilterModel) {
-        console.log("filter model change");
-    }
-
+    const handlePaginationModelChange = (model: GridPaginationModel) => {
+        setPaginationModel(model);
+    };
     return (
-        <Box maxWidth="lg" sx={{mt: 4, mb: 4}}>
+        <Box maxWidth="lg" sx={{height: 650, mt: 4, mb: 4}}>
             {showError && (
                 <ErrorSnackbar
                     key={errorSnackbarKey} // Usa a chave para forçar o re-render
@@ -245,9 +235,9 @@ export const ListarFerragem = () => {
                 isFetching={isFetching}
                 totalRows={data?.totalElements ?? 0}
                 totalPages={data?.totalPages ?? 0}
+                rowCount={data?.totalElements ?? 0}
                 paginationModel={paginationModel}
-                handlePaginationModel={handlePaginationModel}
-                handleFilterChange={handleFilterChange}
+                handlePaginationModel={handlePaginationModelChange}
                 onRowClick={handleRowClick}
             />
             <ConfirmationDialog
