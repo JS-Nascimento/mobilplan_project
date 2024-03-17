@@ -11,7 +11,7 @@ export default interface Principal {
 }
 
 export interface Content {
-    id:           number;
+    id:           number | null | undefined;
     descricao:    string;
     cor:          string;
     unidade:      string;

@@ -91,7 +91,7 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
                     // Personalizar textos de paginação
                     footerRowSelected: (count) => `${count} linha(s) selecionada(s)`,
                     footerTotalRows: "Total de Linhas:",
-                    // Se estiver usando paginação de servidor, talvez queira personalizar estes também
+                    //usando paginação de servidor
                     MuiTablePagination: {
                         labelRowsPerPage: "Linhas por página:",
                         labelDisplayedRows: ({from, to, count}) =>

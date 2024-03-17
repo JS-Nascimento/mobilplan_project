@@ -15,13 +15,13 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import BotaoImportar from '../../../components/CustomButtons/BotaoImportar';
-import {apiSlice} from "../../api/apiSlice";
+import {capitalizeFirstLetter} from "../../../utils/StringUtilsHelper";
 
 export const ListarFerragem = () => {
     const navigate = useNavigate();
     const {enqueueSnackbar} = useSnackbar();
     const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({pageSize: 10, page: 0});
-    const {data, isFetching} = useGetFerragensQuery({
+    const {data, isFetching, error, isError} = useGetFerragensQuery({
         page: paginationModel.page, // A API espera que a paginação comece de 1
         size: paginationModel.pageSize,
     });
@@ -39,9 +39,9 @@ export const ListarFerragem = () => {
         imagem: ferragem.imagem,
         descricao: ferragem.descricao,
         cor: ferragem.cor,
-        unidade: ferragem.unidade,
+        unidade: capitalizeFirstLetter(ferragem.unidade),
         preco: formatarPreco(ferragem.preco.toString()),
-        precificacao: ferragem.precificacao,
+        precificacao: capitalizeFirstLetter(ferragem.precificacao),
         alteradoEm: ferragem.atualizadoEm,
     })) || [];
 
@@ -118,12 +118,15 @@ export const ListarFerragem = () => {
         if (deleteFerragemStatus.isError) {
             enqueueSnackbar("Erro ao deletar ferragem!", {variant: "error"});
         }
-    }, [deleteFerragemStatus, enqueueSnackbar]);
-
+        if (error) {
+            enqueueSnackbar("Erro ao carregar Ferragens", {variant: "error"});
+        }
+    }, [deleteFerragemStatus, enqueueSnackbar, error]);
 
     const handlePaginationModelChange = (model: GridPaginationModel) => {
         setPaginationModel(model);
     };
+
     return (
         <Box maxWidth="lg" sx={{height: 650, mt: 4, mb: 4}}>
             {showError && (

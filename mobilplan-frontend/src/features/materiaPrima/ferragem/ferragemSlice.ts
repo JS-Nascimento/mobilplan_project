@@ -1,28 +1,28 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RootState} from "../../../app/store";
 import Principal, {Content, Pagination} from "../../../types/ferragem";
 import {apiSlice} from "../../api/apiSlice";
 
-export interface Ferragem {
-    id: number;
-    descricao: string
-    cor: string | null;
-    unidade: string;
-    preco: number;
-    precificacao: string;
-    imagem: string | null;
-    criadoEm: string | null;
-    atualizadoEm: string;
-    tenantId: string;
+export interface Ferragem extends Content {
 }
 
+export const initialState: Ferragem = {
+    id: null,
+    descricao: "",
+    cor: "",
+    unidade: "",
+    preco: 0.0,
+    precificacao: "",
+    imagem: "",
+    criadoEm: "",
+    atualizadoEm: "",
+    tenantId: "",
+};
 
-function parseQueryParams(params : Pagination) {
+function parseQueryParams(params: Pagination) {
     const query = new URLSearchParams();
-    if(params.page) {
+    if (params.page) {
         query.append("page", params.page.toString());
     }
-    if(params.size) {
+    if (params.size) {
         query.append("size", params.size.toString());
     }
     return query.toString();
@@ -30,11 +30,13 @@ function parseQueryParams(params : Pagination) {
 
 const endpoint = '/materia-prima/ferragem';
 const pesquisar = '/pesquisar';
-function mountUrlParams({page = 0, size = 10}){
-    const params : Pagination = { page , size};
+
+function mountUrlParams({page = 0, size = 10}) {
+    const params: Pagination = {page, size};
     const queryParams = parseQueryParams(params);
     return `${endpoint}${pesquisar}?${queryParams}`;
 }
+
 export const ferragensApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getFerragens: builder.query<Principal, Pagination>({
@@ -44,84 +46,46 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
                 body: {},
             }),
             providesTags: (result) =>
-                result ? [{ type: 'Ferragens', id: 'LIST' }] : [],
+                result ? [{type: 'Ferragens', id: 'LIST'}] : [],
         }),
+
         createFerragem: builder.mutation<Content, Partial<Content>>({
             query: (ferragem) => ({
                 url: endpoint,
                 method: 'POST',
                 body: ferragem,
             }),
-            invalidatesTags: [{ type: 'Ferragens', id: 'LIST' }],
+            invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
         }),
         updateFerragem: builder.mutation<Content, { id: number; data: Partial<Content> }>({
-            query: ({ id, data }) => ({
+            query: ({id, data}) => ({
                 url: `${endpoint}/${id}`,
                 method: 'PUT',
                 body: data,
             }),
-            invalidatesTags: [{ type: 'Ferragens', id: 'LIST' }],
+            invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
         }),
         deleteFerragem: builder.mutation<void, number>({
             query: (id) => ({
                 url: `${endpoint}/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: [{ type: 'Ferragens', id: 'LIST' }],
+            invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
+        }),
+        getFerragemById: builder.query<Content, number>({
+            query: (id) => ({
+                url: `${endpoint}/${id}`,
+                method: 'GET',
+            }),
         }),
     }),
 });
 
-const ferragem: Ferragem = {
-    "id": 8,
-    "descricao": "Parafuso 3.5x16mm Ciser - 100un",
-    "cor": "Bicromatizado",
-    "unidade": "PACOTE",
-    "preco": 5.99,
-    "precificacao": "UNIDADE",
-    "imagem": "tesre",
-    "criadoEm": "07/03/2024 18:35:30",
-    "atualizadoEm": "07/03/2024 18:35:30",
-    "tenantId": "b5669ea4-4f3a-4ad4-89a9-de55e0c9fa75"
-};
 
-const initialState: Ferragem[] = [ferragem,
-    {...ferragem, "id": 2, "descricao": "Suporte de Prateleira - 100un"},
-    {...ferragem, "id": 3, "descricao": "Minifix Preto", "cor": "Preto", "unidade": "pacote", "preco": 3.99},
-];
-
-export const ferragemSlice = createSlice({
-    name: 'ferragens',
-    initialState: initialState,
-    reducers: {
-        criarFerragem: (state, action: PayloadAction<Ferragem>) => {
-            state.push(action.payload);
-
-        },
-        alterarFerragem: (state, action) => {
-            const index = state.findIndex((ferragem) => ferragem.id === action.payload.id);
-
-            state[index] = action.payload;
-        },
-        removerFerragem: (state, action) => {
-            const index = state.findIndex((ferragem) => ferragem.id === action.payload);
-            if (index !== -1) {
-                state.splice(index, 1);
-            }
-        },
-
-    },
-});
-
-export const selectFerragemId = (state: RootState, id: number): Ferragem | null => {
-    const ferragem = state.ferragens.find((ferragem: Ferragem) => ferragem.id === id);
-    return ferragem || null;
-}
-export default ferragemSlice.reducer;
-export const {criarFerragem, alterarFerragem, removerFerragem} = ferragemSlice.actions;
 export const {
     useGetFerragensQuery,
     useCreateFerragemMutation,
     useUpdateFerragemMutation,
     useDeleteFerragemMutation,
+    useGetFerragemByIdQuery,
 } = ferragensApiSlice;

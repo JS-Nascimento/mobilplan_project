@@ -1,84 +1,118 @@
-import { Box, Paper, SelectChangeEvent, Typography } from "@mui/material";
-import { ChangeEvent, useState } from "react";
-import { useAppDispatch } from "../../../app/hooks";
+import { useNavigate } from "react-router-dom";
+import {Box, Paper, SelectChangeEvent, Typography} from "@mui/material";
+import {ChangeEvent, useEffect, useState} from "react";
 import FerragemForm from "../../../components/MateriaPrima/Ferragem/FerragemForm";
-import { Ferragem, criarFerragem } from "./ferragemSlice";
+import {Ferragem, initialState, useCreateFerragemMutation} from "./ferragemSlice";
 import {useSnackbar} from "notistack";
 
 export const CriarFerragem = () => {
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [ferragem, setFerragem] = useState<Ferragem>({
-    id: 0,
-    descricao: "",
-    cor: "",
-    unidade: "",
-    preco: 0.0,
-    precificacao: "",
-    imagem: "",
-    criadoEm: "",
-    atualizadoEm: "",
-    tenantId: "",
-  });
+    const navigate = useNavigate();
+    const {enqueueSnackbar} = useSnackbar();
+    const [createFerragem, status] = useCreateFerragemMutation();
+    const [isDisabled, setIsDisabled] = useState(false);
+    const [ferragem, setFerragem] = useState<Ferragem>(
+        initialState || ({} as Ferragem)
+    );
 
-  const [ferragemState, setFerragemState] = useState<Ferragem>(
-    ferragem || ({} as Ferragem)
-  );
+    const [ferragemState, setFerragemState] = useState<Ferragem>(
+        ferragem || ({} as Ferragem)
+    );
 
-  const dispatch = useAppDispatch();
-  const { enqueueSnackbar } = useSnackbar();
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    event.preventDefault();
-    dispatch(criarFerragem(ferragemState));
-    enqueueSnackbar("Ferragem criada com sucesso!", { variant: "success" });
-  };
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        createFerragem(ferragemState);
+    }
 
-  const handleChange = (
-    event: ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }
-    >
-  ) => {
-    const { name, value } = event.target as { name: string; value: any };
-    setFerragemState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+    const handleChange = (
+        event: ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }
+        >
+    ) => {
+        const {name, value} = event.target as { name: string; value: any };
+        setFerragemState((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
 
-  const handleSelect = (event: SelectChangeEvent) => {
-    const { name, value } = event.target;
+    const handleSelect = (event: SelectChangeEvent) => {
+        const {name, value} = event.target;
 
-    setFerragemState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+        setFerragemState((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
 
-  return (
-    <Box>
-      <Typography
-        mb={2}
-        sx={{
-          typography: {
-            xs: "h6",
-            sm: "h6",
-            md: "h5",
-            lg: "h5",
-          },
-        }}
-      >
-        Criar Ferragem
-      </Typography>
-      <Paper>
-        <FerragemForm
-          ferragem={ferragemState}
-          isDisabled={isDisabled}
-          onSubmit={handleSubmit} // Correto
-          handleChange={handleChange}
-          handleSelect={handleSelect}
-        />
-      </Paper>
-    </Box>
-  );
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        let tempErrors = {};
+        let isValid = true;
+
+        // Exemplo de validação para o campo 'descricao'
+        if (!ferragemState.descricao) {
+            isValid = false;
+            tempErrors = { ...tempErrors, descricao: "Descrição é obrigatória." };
+        }
+        if (!ferragemState.cor) {
+            isValid = false;
+            tempErrors = { ...tempErrors, cor: "Cor é obrigatória." };
+        }
+        if (ferragemState.preco <= 0) {
+            isValid = false;
+            tempErrors = { ...tempErrors, preco: "Preço precisa ser maior que 0,00." };
+        }
+        if (!ferragemState.unidade) {
+            isValid = false;
+            tempErrors = { ...tempErrors, unidade: "Unidade é obrigatória." };
+        }
+        if (!ferragemState.precificacao) {
+            isValid = false;
+            tempErrors = { ...tempErrors, precificacao: "Precificação é obrigatória." };
+        }
+
+        setErrors(tempErrors);
+        return isValid;
+    };
+
+
+    useEffect(() => {
+        if (status.isSuccess) {
+            enqueueSnackbar("Ferragem criada com sucesso!", {variant: "success"});
+            setIsDisabled(true);
+            navigate('/ferragem');
+        }
+        if (status.isError) {
+            enqueueSnackbar("Erro ao criar ferragem", {variant: "error"});
+        }
+    }, [enqueueSnackbar, status.isError, status.isSuccess]);
+
+    return (
+        <Box>
+            <Typography
+                mb={2}
+                sx={{
+                    typography: {
+                        xs: "h6",
+                        sm: "h6",
+                        md: "h5",
+                        lg: "h5",
+                    },
+                }}
+            >
+                Criar Ferragem
+            </Typography>
+            <Paper>
+                <FerragemForm
+                    ferragem={ferragemState}
+                    isDisabled={isDisabled}
+                    onSubmit={handleSubmit} // Correto
+                    handleChange={handleChange}
+                    handleSelect={handleSelect}
+                    validateErrors={errors}
+                />
+            </Paper>
+        </Box>
+    );
 };
