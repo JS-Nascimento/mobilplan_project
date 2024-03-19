@@ -194,12 +194,14 @@ export default function FerragemForm({
                             display="flex"
                             justifyContent={{xs: "center", sm: "flex-start"}}
                         >
-                            <BotaoSecundario onClick={() => navigate(-1)} disabled={isDisabled}>
+                            <BotaoSecundario largura={200} onClick={() => navigate(-1)} disabled={isDisabled}>
                                 Voltar
                             </BotaoSecundario>
                             <Box ml={1}></Box>
-                            <BotaoPrimario type="submit"
-                                           disabled={isDisabled}
+                            <BotaoPrimario
+                                type="submit"
+                                disabled={isDisabled}
+                                sx={{width: 200}}
                             >Salvar</BotaoPrimario>
                         </Box>
                     </Grid>

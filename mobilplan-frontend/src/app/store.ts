@@ -1,10 +1,14 @@
 import {Action, configureStore, ThunkAction} from '@reduxjs/toolkit';
 import {apiSlice} from "../features/api/apiSlice";
+import {ferragensApiSlice} from "../features/materiaPrima/ferragem/ferragemSlice";
+import {authSlice} from "../features/auth/authSlice";
 
 
 export const store = configureStore({
     reducer: {
         [apiSlice.reducerPath]: apiSlice.reducer,
+        [ferragensApiSlice.reducerPath]: ferragensApiSlice.reducer,
+        auth: authSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
