@@ -1,14 +1,31 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Box, Grid, Typography} from '@mui/material';
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Grid,
+    List,
+    ListItem,
+    Typography
+} from '@mui/material';
 import {GridColDef, GridPaginationModel, GridRowParams, GridRowsProp} from '@mui/x-data-grid';
 import {useSnackbar} from 'notistack';
 import CustomDataGrid from '../../../components/CustomDataGrid/CustomDataGrid';
-import {ferragensApiSlice, useDeleteFerragemMutation, useGetFerragensQuery} from './ferragemSlice';
+import {
+    ferragensApiSlice,
+    useDeleteFerragemMutation,
+    useGetFerragensQuery,
+    useUploadFerragemPlanilhaMutation
+} from './ferragemSlice';
 import CustomButton from '../../../components/CustomButtons/CustomButton';
 import ErrorSnackbar from '../../../components/SnackErrorBar/ErrorSnackbar';
 import {ConfirmationDialog} from '../../../components/CustomModals/ConfirmationDialog';
-import {Content} from '../../../types/ferragem';
+import {Content, ImportacaoFerragem} from '../../../types/ferragem';
 import {formatarPreco} from '../../../utils/formatNumersHelper';
 import {Create} from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
@@ -20,18 +37,22 @@ import {capitalizeFirstLetter} from "../../../utils/StringUtilsHelper";
 export const ListarFerragem = () => {
     const navigate = useNavigate();
     const {enqueueSnackbar} = useSnackbar();
-    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({pageSize: 10, page: 0});
+    const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({pageSize: 20, page: 0});
     const {data, isFetching, error, isError} = useGetFerragensQuery({
         page: paginationModel.page, // A API espera que a paginação comece de 1
         size: paginationModel.pageSize,
     });
     const [deleteFerragem, deleteFerragemStatus] = useDeleteFerragemMutation();
 
+    const [openUploadModal, setOpenUploadModal] = useState(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [errorSnackbarKey, setErrorSnackbarKey] = useState<number>(0);
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [uploadFerragem, { isLoading: isUploading }] = useUploadFerragemPlanilhaMutation();
+    const [uploadResult, setUploadResult] = useState<ImportacaoFerragem | null>(null);
+
 
 
     const rows: GridRowsProp = data?.content.map((ferragem: Content) => ({
@@ -84,12 +105,6 @@ export const ListarFerragem = () => {
         }
     };
 
-    const handleError = (message: string) => {
-        setErrorMessage(message);
-        setShowError(true);
-        setErrorSnackbarKey(prevKey => prevKey + 1);
-    };
-
     const handleDeleteClick = () => {
         if (selectedId !== null) {
             setOpenDialog(true);
@@ -126,6 +141,7 @@ export const ListarFerragem = () => {
     const handlePaginationModelChange = (model: GridPaginationModel) => {
         setPaginationModel(model);
     };
+
 
     return (
         <Box maxWidth="lg" sx={{height: 650, mt: 4, mb: 4}}>
@@ -183,7 +199,7 @@ export const ListarFerragem = () => {
                                 bgcolor: 'rgba(7, 55, 99, 0.5)',
                             }
                         }}/>
-                    <CustomButton
+                     <CustomButton
                         label={"Editar"}
                         icon={<Create/>}
                         largura="100px"
@@ -220,16 +236,46 @@ export const ListarFerragem = () => {
                                 bgcolor: 'rgba(102, 0, 0, 0.5)',
                             },
                         }}/>
-                    <BotaoImportar larguraBotaoMenu="20px"
-                                   sx={{
-                                       pl: 3, pr: 3,
-                                       height: 36, // Altura fixa para o botão, ajuste conforme necessário
-                                       minHeight: 36,
-                                       fontSize: {xs: 10, sm: 12, md: 14}
-                                   }}
-                                   startIcon={<FileUploadIcon/>}
-                                   variant="contained"
-                                   color="secondary"/>
+                    {/*<BotaoImportar larguraBotaoMenu="20px"*/}
+                    {/*               opcoes={['Download modelo CSV', 'Upload Planilha CSV']}*/}
+                    {/*               onDownload={handleDownload} // Passa a função de download*/}
+                    {/*               // onUpload={async (file) => {*/}
+                    {/*               //     try {*/}
+                    {/*               //         await uploadFerragem(file).unwrap();*/}
+                    {/*               //         enqueueSnackbar('Upload realizado com sucesso!', {variant: 'success'});*/}
+                    {/*               //         // Atualiza a lista de ferragens ou qualquer outra ação necessária após o upload*/}
+                    {/*               //     } catch (error) {*/}
+                    {/*               //         console.error('Erro ao fazer upload da planilha:', error);*/}
+                    {/*               //         enqueueSnackbar('Erro ao realizar upload.', {variant: 'error'});*/}
+                    {/*               //     }*/}
+                    {/*               // }}*/}
+                    {/*               sx={{*/}
+                    {/*                   pl: 3, pr: 3,*/}
+                    {/*                   height: 36, // Altura fixa para o botão, ajuste conforme necessário*/}
+                    {/*                   minHeight: 36,*/}
+                    {/*                   fontSize: {xs: 10, sm: 12, md: 14}*/}
+                    {/*               }}*/}
+                    {/*               startIcon={<FileUploadIcon/>}*/}
+                    {/*               variant="contained"*/}
+                    {/*               color="secondary"/>*/}
+                    <CustomButton
+                        label={"Importar em Lote"}
+                        icon={<FileUploadIcon/>}
+                        largura="100px"
+                        variant="outlined"
+                        color="secondary"
+                        forwardTo="/ferragem/importar"
+                        sx={{
+                            mb: {xs: ".5rem", sm: "1rem"},
+                            pl: 3, pr: 3,
+                            height: 36,
+                            minHeight: 36,
+                            fontSize: {xs: 10, sm: 12, md: 14},
+                            ':hover': {
+                            //     color: '#3d3835',
+                                bgcolor: 'rgba(180,180,180,0.5)',
+                            }
+                        }}/>
                 </Grid>
             </Grid>
             <CustomDataGrid

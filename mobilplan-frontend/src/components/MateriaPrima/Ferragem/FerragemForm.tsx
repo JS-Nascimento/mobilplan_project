@@ -194,7 +194,7 @@ export default function FerragemForm({
                             display="flex"
                             justifyContent={{xs: "center", sm: "flex-start"}}
                         >
-                            <BotaoSecundario largura={200} onClick={() => navigate(-1)} disabled={isDisabled}>
+                            <BotaoSecundario largura={200} onClick={() => navigate('/ferragem')} disabled={isDisabled}>
                                 Voltar
                             </BotaoSecundario>
                             <Box ml={1}></Box>

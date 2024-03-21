@@ -1,4 +1,4 @@
-import Principal, {Content, Pagination} from "../../../types/ferragem";
+import Principal, {Content, ImportacaoFerragem, Pagination} from "../../../types/ferragem";
 import {apiSlice} from "../../api/apiSlice";
 
 export interface Ferragem extends Content {
@@ -78,6 +78,21 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
                 method: 'GET',
             }),
         }),
+
+        uploadFerragemPlanilha: builder.mutation<ImportacaoFerragem, File>({
+            query: (file) => {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                return {
+                    url: `${endpoint}/importar-em-lote`,
+                    method: 'POST',
+                    body: formData,
+                };
+            },
+            invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
+        }),
+
     }),
 });
 
@@ -88,4 +103,5 @@ export const {
     useUpdateFerragemMutation,
     useDeleteFerragemMutation,
     useGetFerragemByIdQuery,
+    useUploadFerragemPlanilhaMutation,
 } = ferragensApiSlice;

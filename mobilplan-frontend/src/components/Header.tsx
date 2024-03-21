@@ -12,13 +12,20 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import MobilplanIcon from "../components/Logo";
 import DrawerCustom from "./Drawer/DrawerCustom";
-import { appTheme } from "../config/theme";
-import { Link } from "react-router-dom";
+import {appTheme} from "../config/theme";
+import {Link, useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
+import {fetchUserDetails, logoutAsync, selectUserDetails} from "../features/auth/authSlice";
+import {useAppDispatch} from "../app/hooks";
+import {useEffect} from "react";
 
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+
+const settings = ["Perfil", "Marcenaria", "Configurações", "Logout"];
 
 export function Header() {
-
+  const navigate = useNavigate();
+  const userDetails = useSelector(selectUserDetails);
+  const dispatch = useAppDispatch();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
@@ -40,6 +47,21 @@ export function Header() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  const handleLogout = () => {
+    dispatch(logoutAsync())
+        .unwrap()
+        .then(() => {
+          navigate('/login');
+        })
+        .catch((error) => {
+
+          console.error('Error during logout:', error);
+        });
+  };
+
+  useEffect(() => {
+    dispatch(fetchUserDetails());
+  }, [dispatch]);
 
   return (
     <>
@@ -61,9 +83,11 @@ export function Header() {
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}></Box>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title={userDetails?.email}>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt={userDetails?.name} src={userDetails?.image} />
+                <Box sx={{ ml: 1 }}></Box>
+                <Typography>{userDetails?.name}</Typography>
               </IconButton>
             </Tooltip>
             <Menu
@@ -83,7 +107,15 @@ export function Header() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting}
+                          onClick={() => {
+                            if(setting === "Logout"){
+                            handleLogout();
+                            handleCloseUserMenu();
+                          } else if (setting === "Configurações"){
+                            navigate('/settings');
+                            handleCloseUserMenu();
+                          }}}>
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}

@@ -35,7 +35,7 @@ export default function DrawerCustom({
         width: 240,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: 360,
+          width: 320,
           boxSizing: "border-box",
           backgroundColor: theme.palette.primary.main,
         },

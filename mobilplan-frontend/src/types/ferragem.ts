@@ -27,3 +27,9 @@ export interface Pagination{
     page: number;
     size: number;
 }
+export interface ImportacaoFerragem {
+    ferragensImportadas:   string[] | null;
+    ferragensExistentes:   string[] | null;
+    ferragensNaoImportadas: string[] | null;
+}
+
