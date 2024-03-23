@@ -19,6 +19,7 @@ const CustomImageInput: React.FC<ImageInputProps> = ({name, label, imageUrl,  er
     useEffect(() => {
         console.log('imageUrl:', imageUrl);
         setImagePreviewUrl(imageUrl || null);
+        setIsImageSelected(!!imageUrl);
     }, [imageUrl]);
 
     const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {

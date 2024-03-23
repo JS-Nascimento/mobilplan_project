@@ -113,6 +113,19 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
         }),
 
+        deleteFerragemImagem: builder.mutation<boolean, { id: number; url: string | null }>({
+            query: ({id, url}) => {
+
+                const queryString = url ? `?imagem=${encodeURIComponent(url)}` : '';
+                return {
+                    url: `${endpoint}/${id}/imagem${queryString}`,
+                    method: 'DELETE',
+                };
+            },
+
+            transformResponse: (response: { success: boolean }, meta, arg) => response.success,
+            invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
+        }),
     }),
 });
 
@@ -125,4 +138,5 @@ export const {
     useGetFerragemByIdQuery,
     useUploadFerragemPlanilhaMutation,
     useUpdateFerragemImagemMutation,
+    useDeleteFerragemImagemMutation,
 } = ferragensApiSlice;
