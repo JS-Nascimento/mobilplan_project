@@ -17,6 +17,7 @@ export const initialState: Ferragem = {
     tenantId: "",
 };
 
+
 function parseQueryParams(params: Pagination) {
     const query = new URLSearchParams();
     if (params.page) {
@@ -77,6 +78,8 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
                 url: `${endpoint}/${id}`,
                 method: 'GET',
             }),
+            providesTags: (result) =>
+                result ? [{type: 'Ferragens', id: 'LIST'}] : [],
         }),
 
         uploadFerragemPlanilha: builder.mutation<ImportacaoFerragem, File>({
@@ -93,6 +96,23 @@ export const ferragensApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
         }),
 
+
+        updateFerragemImagem: builder.mutation<string, { id: number; file: File | null }>({
+            query: ({id, file}) => {
+                const formData = new FormData();
+                if (file) {
+                    formData.append("imagem", file); // Assumindo que "imagem" é a chave esperada pelo backend
+                }
+                return {
+                    url: `${endpoint}/${id}/imagem`,
+                    method: 'PUT',
+                    body: formData,
+                };
+            },
+            transformResponse: (response: { url: string }, meta, arg) => response.url,
+            invalidatesTags: [{type: 'Ferragens', id: 'LIST'}],
+        }),
+
     }),
 });
 
@@ -104,4 +124,5 @@ export const {
     useDeleteFerragemMutation,
     useGetFerragemByIdQuery,
     useUploadFerragemPlanilhaMutation,
+    useUpdateFerragemImagemMutation,
 } = ferragensApiSlice;

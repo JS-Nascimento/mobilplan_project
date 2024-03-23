@@ -55,9 +55,12 @@ export const ListarFerragem = () => {
 
 
 
+    const DEFAULT_IMAGE_URL = '/assets/common/images.png';
+
+
     const rows: GridRowsProp = data?.content.map((ferragem: Content) => ({
         id: ferragem.id,
-        imagem: ferragem.imagem,
+        imagem:ferragem.imagem ? ferragem.imagem : DEFAULT_IMAGE_URL,
         descricao: ferragem.descricao,
         cor: ferragem.cor,
         unidade: capitalizeFirstLetter(ferragem.unidade),
@@ -73,7 +76,13 @@ export const ListarFerragem = () => {
             width: 25,
             headerAlign: 'center', align: 'center',
         },
-        {field: "imagem", headerName: "Imagem", width: 75, headerAlign: 'center', align: 'center'},
+        {
+            field: 'imagem',
+            headerName: 'Imagem', width: 75, headerAlign: 'center', align: 'center',
+            renderCell: (params) => (
+                <img src={params.value} alt="Imagem" style={{width: '50px', height: '50px', borderRadius: '10%'}} />
+            ),
+        },
         {field: "descricao", headerName: "Descrição", flex: 1},
         {field: "cor", headerName: "Cor", width: 150, headerAlign: 'center', align: 'center'},
         {field: "unidade", headerName: "Unidade", width: 100, headerAlign: 'center', align: 'center'},

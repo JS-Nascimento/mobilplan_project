@@ -1,3 +1,4 @@
+import * as url from "url";
 
 export default interface Principal {
     content:          Content[];
@@ -17,7 +18,7 @@ export interface Content {
     unidade:      string;
     preco:        number;
     precificacao: string;
-    imagem:       null | string;
+    imagem:       string | null;
     criadoEm:     string;
     atualizadoEm: string;
     tenantId:     string;

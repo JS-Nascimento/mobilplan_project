@@ -37,7 +37,6 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
     return (
         <ThemeProvider theme={appTheme}>
             <DataGrid
-                density={"compact"}
                 rows={rows}
                 columns={columns}
                 loading={isFetching}

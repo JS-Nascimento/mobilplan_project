@@ -16,16 +16,29 @@ import {LabelIDNumber} from "../../NumberIDLabel";
 import BotaoPrimario from "../../CustomButtons/BotaoPrimario";
 import BotaoSecundario from "../../CustomButtons/BotaoSecundario";
 import {useNavigate} from "react-router-dom";
+import CustomImageInput from "../../CustomImageInput";
+
+
+interface FormDataWithFile {
+    event: React.FormEvent<HTMLFormElement>;
+    selectedFile: ImageInputrops;
+}
 
 type Props = {
     ferragem: Ferragem;
     isDisabled?: boolean;
     isLoading?: boolean;
-    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    onSubmit: (formData: FormDataWithFile) => void;
     handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
     handleSelect: (e: SelectChangeEvent) => void;
     validateErrors: any;
 };
+
+type ImageInputrops = {
+    name: string | null;
+    file: File | null;
+};
+
 
 // Definição das opções do select
 const opcoesUnidades = [
@@ -55,6 +68,8 @@ export default function FerragemForm({
                                      }: Props) {
     const navigate = useNavigate();
     const [precoInput, setPrecoInput] = useState(ferragem.preco.toString());
+    const [selectedFile, setSelectedFile]
+        = useState<ImageInputrops>({name: null, file: null});
 
     const [errors, setErrors] = useState({
         descricao: '',
@@ -62,6 +77,7 @@ export default function FerragemForm({
         unidade: '',
         preco: '',
         precificacao: '',
+        imagem: '',
     });
 
     useEffect(() => {
@@ -70,7 +86,6 @@ export default function FerragemForm({
         }
     }, [validateErrors]); // Dependência para `validateErrors`
 
-    // Restante do componente permanece igual
 
     const handlePrecoChange = (event: ChangeEvent<HTMLInputElement>) => {
         setPrecoInput(event.target.value);
@@ -81,9 +96,20 @@ export default function FerragemForm({
         const precoFormatado = parseFloat(precoInput).toFixed(2); // Exemplo de formatação
         setPrecoInput(precoFormatado);
     };
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        const formData = {
+            event,
+            selectedFile,
+        };
+        onSubmit(formData);
+    }
+
     return (
         <Box p={2}>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     {ferragem.id && (
                         <Grid item xs={12}>
@@ -179,6 +205,22 @@ export default function FerragemForm({
                             {!!errors.unidade && <FormHelperText>{errors.precificacao}</FormHelperText>}
                         </FormControl>
                     </Grid>
+                    <Grid item xs={12} sm={3}>
+                        <CustomImageInput
+                            name="imagem"
+                            label="Imagem"
+                            imageUrl={ferragem.imagem || ""}
+                            error={!!errors.imagem}
+                            helperText={errors.imagem}
+                            onChange={(e) => {
+                                // Implemente a lógica para manipular a mudança de imagem aqui
+                                // Você pode querer converter o arquivo em uma URL de objeto ou algo similar
+                                handleChange(e);
+                            }}
+                            onImageChange={(name, file) => setSelectedFile({name, file})}
+                        />
+                    </Grid>
+
                     <Grid item xs={12} display="row">
                         <Box
                             display="flex"

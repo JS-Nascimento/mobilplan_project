@@ -17,8 +17,14 @@ export const CriarFerragem = () => {
     const [ferragemState, setFerragemState] = useState<Ferragem>(
         ferragem || ({} as Ferragem)
     );
+    const [selectedFile, setSelectedFile] = useState<SelectedFile>({name: null, file: null});
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    type SelectedFile = {
+        name: string | null;
+        file: File | null;
+    };
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>, selectedName: string | null, selectedFile: File | null) {
         event.preventDefault();
         createFerragem(ferragemState);
     }
@@ -107,7 +113,10 @@ export const CriarFerragem = () => {
                 <FerragemForm
                     ferragem={ferragemState}
                     isDisabled={isDisabled}
-                    onSubmit={handleSubmit} // Correto
+                    onSubmit={({event, selectedFile}) => {
+                        setSelectedFile(selectedFile);
+                        handleSubmit(event, selectedFile.name, selectedFile.file);
+                    }}
                     handleChange={handleChange}
                     handleSelect={handleSelect}
                     validateErrors={errors}
