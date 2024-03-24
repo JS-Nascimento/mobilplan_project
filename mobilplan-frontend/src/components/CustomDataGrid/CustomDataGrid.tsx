@@ -2,7 +2,8 @@ import React from "react";
 import {DataGrid, DataGridProps, GridColDef, GridFilterModel, GridRowsProp,} from "@mui/x-data-grid";
 import {ThemeProvider} from "@mui/material/styles";
 import {appTheme} from "../../config/theme";
-import {CustomGridToolbar} from "./CustomGridToolbar"; //
+import {CustomGridToolbar} from "./CustomGridToolbar";
+import LoadingSpinner from "../CustomSpinner/LoadingSpinner"; //
 
 interface CustomDataGridProps extends Omit<DataGridProps, "rows" | "columns"> {
     rows: GridRowsProp;
@@ -36,6 +37,10 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
 
     return (
         <ThemeProvider theme={appTheme}>
+            {isFetching && (
+                          <LoadingSpinner />
+            )}
+            {!isFetching && (
             <DataGrid
                 rows={rows}
                 columns={columns}
@@ -123,6 +128,7 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
                     // Adicione mais estilos personalizados aqui conforme necessário
                 }}
             />
+            )},
         </ThemeProvider>
     );
 };

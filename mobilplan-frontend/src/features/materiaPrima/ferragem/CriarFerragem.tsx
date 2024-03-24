@@ -1,32 +1,55 @@
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {Box, Paper, SelectChangeEvent, Typography} from "@mui/material";
-import {ChangeEvent, useEffect, useState} from "react";
+import React, {ChangeEvent, useState} from "react";
 import FerragemForm from "../../../components/MateriaPrima/Ferragem/FerragemForm";
 import {Ferragem, initialState, useCreateFerragemMutation} from "./ferragemSlice";
 import {useSnackbar} from "notistack";
+import {useHandleImageUpload} from "../../hooks/ImageHooks";
+import {handleApiError} from "../../errorHandler/handleError";
 
 export const CriarFerragem = () => {
     const navigate = useNavigate();
     const {enqueueSnackbar} = useSnackbar();
-    const [createFerragem, status] = useCreateFerragemMutation();
+    const [createFerragem] = useCreateFerragemMutation();
     const [isDisabled, setIsDisabled] = useState(false);
     const [ferragem, setFerragem] = useState<Ferragem>(
         initialState || ({} as Ferragem)
     );
-
+    const handleImageUpload = useHandleImageUpload();
     const [ferragemState, setFerragemState] = useState<Ferragem>(
         ferragem || ({} as Ferragem)
     );
-    const [selectedFile, setSelectedFile] = useState<SelectedFile>({name: null, file: null});
+    const [isLoading, setIsLoading] = useState(false);
 
-    type SelectedFile = {
-        name: string | null;
+    interface SelectedFileState {
+        deleteImage: boolean;
         file: File | null;
-    };
+    }
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>, selectedName: string | null, selectedFile: File | null) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>, selectedFileState: SelectedFileState) {
         event.preventDefault();
-        createFerragem(ferragemState);
+
+        setIsLoading(true);
+        if (!validate()) {
+            setIsLoading(false);
+            return;
+        }
+        try {
+
+            const response = await createFerragem(ferragemState).unwrap();
+
+            if (response.id && selectedFileState.file) {
+                await handleImageUpload(response.id, selectedFileState.file);
+            }
+
+            setIsDisabled(true);
+            navigate('/ferragem');
+
+        } catch (error) {
+            handleApiError(error, 'Erro ao criar a Ferragem', enqueueSnackbar);
+        }
+        setIsLoading(false);
+
     }
 
     const handleChange = (
@@ -59,40 +82,28 @@ export const CriarFerragem = () => {
         // Exemplo de validação para o campo 'descricao'
         if (!ferragemState.descricao) {
             isValid = false;
-            tempErrors = { ...tempErrors, descricao: "Descrição é obrigatória." };
+            tempErrors = {...tempErrors, descricao: "Descrição é obrigatória."};
         }
         if (!ferragemState.cor) {
             isValid = false;
-            tempErrors = { ...tempErrors, cor: "Cor é obrigatória." };
+            tempErrors = {...tempErrors, cor: "Cor é obrigatória."};
         }
         if (ferragemState.preco <= 0) {
             isValid = false;
-            tempErrors = { ...tempErrors, preco: "Preço precisa ser maior que 0,00." };
+            tempErrors = {...tempErrors, preco: "Preço precisa ser maior que 0,00."};
         }
         if (!ferragemState.unidade) {
             isValid = false;
-            tempErrors = { ...tempErrors, unidade: "Unidade é obrigatória." };
+            tempErrors = {...tempErrors, unidade: "Unidade é obrigatória."};
         }
         if (!ferragemState.precificacao) {
             isValid = false;
-            tempErrors = { ...tempErrors, precificacao: "Precificação é obrigatória." };
+            tempErrors = {...tempErrors, precificacao: "Precificação é obrigatória."};
         }
 
         setErrors(tempErrors);
         return isValid;
     };
-
-
-    useEffect(() => {
-        if (status.isSuccess) {
-            enqueueSnackbar("Ferragem criada com sucesso!", {variant: "success"});
-            setIsDisabled(true);
-            navigate('/ferragem');
-        }
-        if (status.isError) {
-            enqueueSnackbar("Erro ao criar ferragem", {variant: "error"});
-        }
-    }, [enqueueSnackbar, status.isError, status.isSuccess]);
 
     return (
         <Box>
@@ -113,9 +124,9 @@ export const CriarFerragem = () => {
                 <FerragemForm
                     ferragem={ferragemState}
                     isDisabled={isDisabled}
-                    onSubmit={({event, selectedFile}) => {
-                        setSelectedFile(selectedFile);
-                        handleSubmit(event, selectedFile.name, selectedFile.file);
+                    onSubmit={({event, selectedFileState}) => {
+                        handleSubmit(event, selectedFileState).then(r => {
+                        });
                     }}
                     handleChange={handleChange}
                     handleSelect={handleSelect}

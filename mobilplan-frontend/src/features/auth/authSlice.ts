@@ -38,12 +38,12 @@ export const logoutAsync = createAsyncThunk('auth/logoutAsync', async (_, {dispa
 
 export const refreshToken = createAsyncThunk(
     'auth/refreshToken',
-    async (refreshToken: string, {rejectWithValue}) => {
+    async (refreshToken: string, { rejectWithValue }) => {
         try {
-            const response = await fetch('http://localhost:8081/auth/refresh', {
+            const response = await fetch(`http://localhost:8081/auth/refresh?refreshToken=${encodeURIComponent(refreshToken)}`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({refreshToken}),
+                headers: {
+                },
             });
 
             if (!response.ok) {
@@ -51,7 +51,7 @@ export const refreshToken = createAsyncThunk(
             }
 
             const data = await response.json();
-            return {accessToken: data.accessToken, refreshToken: data.refreshToken};
+            return { accessToken: data.accessToken, refreshToken: data.refreshToken };
         } catch (error) {
             return rejectWithValue(error instanceof Error ? error.message : 'Erro desconhecido');
         }

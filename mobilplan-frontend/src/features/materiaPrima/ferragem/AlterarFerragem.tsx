@@ -1,17 +1,20 @@
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {Box, Paper, Typography} from "@mui/material";
 import {SelectChangeEvent} from "@mui/material/Select";
-import {ChangeEvent, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import FerragemForm from "../../../components/MateriaPrima/Ferragem/FerragemForm";
 import {
     Ferragem,
-    initialState, useDeleteFerragemImagemMutation,
+    initialState,
+    useDeleteFerragemImagemMutation,
     useGetFerragemByIdQuery,
     useUpdateFerragemImagemMutation,
     useUpdateFerragemMutation
 } from "./ferragemSlice";
 import {useSnackbar} from "notistack";
+import LoadingSpinner from "../../../components/CustomSpinner/LoadingSpinner";
+import {useHandleImageUpload} from "../../hooks/ImageHooks";
+import {handleApiError} from "../../errorHandler/handleError";
 
 export const AlterarFerragem = () => {
     const navigate = useNavigate();
@@ -23,78 +26,51 @@ export const AlterarFerragem = () => {
     const [ferragemState, setFerragemState] = useState<Ferragem>(
         initialState || ({} as Ferragem)
     );
+    const handleImageUpload = useHandleImageUpload();
     const {enqueueSnackbar} = useSnackbar();
-    const [selectedFile, setSelectedFile] = useState<SelectedFile>({name: null, file: null});
+    const [selectedFile, setSelectedFile] = useState<SelectedFileState>({deleteImage: false, file: null});
+    const [isLoading, setIsLoading] = useState(false);
 
-    type SelectedFile = {
-        name: string | null;
+    interface SelectedFileState {
+        deleteImage: boolean;
         file: File | null;
-    };
+    }
 
-
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>, selectedName: string | null, selectedFile: File | null) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>, selectedFileState: SelectedFileState) {
         event.preventDefault();
 
-        status.isLoading = true;
+        setIsLoading(true);
         if (!validate()) {
-            status.isLoading = false;
+            setIsLoading(false);
             return;
         }
 
-        //let imagemAtual = ferragemState.imagem ? ferragemState.imagem : null;
-
         try {
-            // await updateFerragem({id, data: ferragemState}).unwrap();
-            //
-            // if (selectedName !== ferragemState.imagem && selectedFile) {
-            //
-            //     imagemAtual = await handleImageUpload(id, selectedFile ) ?? null;
-            //     setFerragemState(prevState => ({...prevState, imagem: imagemAtual}));
-            //     status.isLoading = false;
-            // }
-            //
-            // if (selectedName !== ferragemState.imagem && !selectedFile && !selectedName) {
-            //     await deleteFerragemImagem({id, url: ferragemState.imagem}).unwrap();
-            //     setFerragemState(prevState => ({...prevState, imagem: null}));
-            //     status.isLoading = false;
-            // }
-            // Atualiza a ferragem independentemente da imagem
+
             await updateFerragem({id, data: ferragemState}).unwrap();
 
-            // Caso 2: Se existe um novo arquivo para upload, independente se o nome é diferente ou não
-            if (selectedFile) {
-                const imagemAtual = await handleImageUpload(id, selectedFile) ?? null;
+            // Se existe um novo arquivo para upload, independente se o nome é diferente ou não
+            if (selectedFileState.file) {
+                const imagemAtual = await handleImageUpload(id, selectedFileState.file) ?? null;
                 setFerragemState(prevState => ({...prevState, imagem: imagemAtual}));
             }
-            // Caso 3: Se não há arquivo selecionado, e uma imagem estava anteriormente associada, ela deve ser removida
-            else if (!selectedFile && !selectedName && ferragemState.imagem) {
+            // Se não há arquivo selecionado, e uma imagem estava anteriormente associada, ela deve ser removida
+            else if (selectedFileState.deleteImage && ferragemState.imagem) {
                 await deleteFerragemImagem({id, url: ferragemState.imagem}).unwrap();
                 setFerragemState(prevState => ({...prevState, imagem: null}));
             }
 
+            setSelectedFile({deleteImage: false, file: null});
+
+            enqueueSnackbar("Ferragem atualizada com sucesso!", {variant: "success"});
+            navigate('/ferragem');
+
 
         } catch (error) {
-
-            enqueueSnackbar("Erro ao atualizar ferragem.", {variant: "error"});
-            console.error('Erro ao atualizar ferragem:', error);
+            handleApiError(error, 'Erro ao atualizar a Ferragem', enqueueSnackbar);
         }
-        status.isLoading = false;
-
+        setIsLoading(false);
     }
-
-    const handleImageUpload = async (id: number, file: File | null) => {
-        if (selectedFile) {
-            try {
-
-                const newImageUrl = await updateFerragemImagem({id, file}).unwrap();
-                return newImageUrl;
-
-            } catch (error) {
-                console.error('Erro ao atualizar a imagem:', error);
-            }
-        }
-    };
-
 
     const handleChange = (
         event: ChangeEvent<
@@ -152,20 +128,13 @@ export const AlterarFerragem = () => {
 
     useEffect(() => {
         if (data) {
-            console.log('data:', data);
             setFerragemState(data);
         }
     }, [data]);
 
     useEffect(() => {
-        if (status.isSuccess) {
-            enqueueSnackbar("Ferragem atualizada com sucesso!", {variant: "success"});
-            navigate('/ferragem');
-        }
-        if (status.isError) {
-            enqueueSnackbar("Erro ao atualizar ferragem", {variant: "error"});
-        }
-    }, [enqueueSnackbar, status.isError, status.isSuccess, navigate]);
+        setIsLoading(isFetching || status.isLoading);
+    }, [isFetching, status.isLoading]);
 
     return (
         <Box>
@@ -183,17 +152,22 @@ export const AlterarFerragem = () => {
                 Editar Ferragem
             </Typography>
             <Paper>
-                <FerragemForm
-                    ferragem={ferragemState}
-                    isDisabled={status.isLoading}
-                    onSubmit={({event, selectedFile}) => {
-                        setSelectedFile(selectedFile);
-                        handleSubmit(event, selectedFile.name, selectedFile.file);
-                    }}
-                    handleChange={handleChange}
-                    handleSelect={handleSelect}
-                    validateErrors={errors}
-                />
+                {isLoading ? (
+                    <LoadingSpinner/>
+                ) : (
+                    <FerragemForm
+                        ferragem={ferragemState}
+                        isDisabled={status.isLoading}
+                        onSubmit={({event, selectedFileState}) => {
+                            handleSubmit(event, selectedFileState).then(r => {
+                            });
+                        }}
+
+                        handleChange={handleChange}
+                        handleSelect={handleSelect}
+                        validateErrors={errors}
+                    />
+                )}
             </Paper>
         </Box>
     );

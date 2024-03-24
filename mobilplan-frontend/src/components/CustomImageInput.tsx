@@ -6,39 +6,46 @@ interface ImageInputProps {
     label: string;
     error?: boolean;
     helperText?: string;
-    imageUrl?: string ;
-    onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
-    onImageChange?: (name: string | null, file: File | null) => void; // Adicionado novo prop
+    imageUrl?: string;
+    onImageChange?: (selectedFileState: SelectedFileState) => void;
 }
 
-const CustomImageInput: React.FC<ImageInputProps> = ({name, label, imageUrl,  error, helperText, onChange, onImageChange}) => {
-    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null >(imageUrl || null);
+interface SelectedFileState {
+    deleteImage: boolean;
+    file: File | null;
+}
+
+const CustomImageInput: React.FC<ImageInputProps> = ({name, label, imageUrl, error, helperText, onImageChange}) => {
+    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(imageUrl || null);
     const [isImageSelected, setIsImageSelected] = useState<boolean>(!!imageUrl);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        console.log('imageUrl:', imageUrl);
         setImagePreviewUrl(imageUrl || null);
         setIsImageSelected(!!imageUrl);
     }, [imageUrl]);
 
     const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files ? event.target.files[0] : null;
-        const name = event.target.name ? event.target.name  : null;
 
         if (file) {
-            const reader = new FileReader();
 
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+                fileInputRef.current.files = null;
+            }
+
+            const reader = new FileReader();
             reader.onload = function (e) {
                 setImagePreviewUrl(e.target?.result as string);
             };
 
             reader.readAsDataURL(file);
             setIsImageSelected(true);
-            onImageChange && onImageChange(name, file); // Notificar componente pai sobre a mudança
+            onImageChange?.({deleteImage: false, file: file});
         } else {
-            setIsImageSelected(false);
-            onImageChange && onImageChange(null,null);
+            setIsImageSelected(true);
+            onImageChange?.({deleteImage: false, file: null});
         }
     };
 
@@ -46,8 +53,9 @@ const CustomImageInput: React.FC<ImageInputProps> = ({name, label, imageUrl,  er
         setImagePreviewUrl("");
         setIsImageSelected(false);
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Corretamente limpa o input
-            onImageChange && onImageChange(null,null); // Notificar componente pai que a imagem foi limpa
+            fileInputRef.current.value = "";
+            fileInputRef.current.files = null;
+            onImageChange?.({deleteImage: true, file: null});
         }
     };
 
