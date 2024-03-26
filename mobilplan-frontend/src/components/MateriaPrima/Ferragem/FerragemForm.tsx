@@ -103,7 +103,7 @@ export default function FerragemForm({
     }
 
     return (
-        <Box p={2}>
+        <Box p={2} >
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                     {ferragem.id && (
@@ -111,7 +111,7 @@ export default function FerragemForm({
                             <LabelIDNumber data={ferragem.id.toString()}/>
                         </Grid>
                     )}
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={12} md={9}>
                         <FormControl fullWidth>
                             <TextField
                                 name="descricao"
@@ -122,8 +122,9 @@ export default function FerragemForm({
                                 helperText={errors.descricao}
                             />
                         </FormControl>
+
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={12} md={3}>
                         <FormControl fullWidth>
                             <TextField
                                 name="cor"
@@ -135,7 +136,7 @@ export default function FerragemForm({
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={12} md={4}>
                         <FormControl fullWidth>
                             <InputLabel id="label-unidade">Unidade</InputLabel>
                             <Select
@@ -155,7 +156,7 @@ export default function FerragemForm({
                             {!!errors.unidade && <FormHelperText>{errors.unidade}</FormHelperText>}
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={12} md={4}>
                         <FormControl fullWidth>
                             <TextField
                                 variant="outlined"
@@ -180,7 +181,7 @@ export default function FerragemForm({
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={12} md={4}>
                         <FormControl fullWidth>
                             <InputLabel id="label-precificacao">Precificação</InputLabel>
                             <Select

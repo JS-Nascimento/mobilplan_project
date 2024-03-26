@@ -89,7 +89,7 @@ export const ListarFerragem = () => {
             setOpenDialog(true);
 
         } else {
-            enqueueSnackbar('Por favor, selecione uma linha para deletar.');
+            enqueueSnackbar('Por favor, selecione uma linha para deletar.', {variant: 'warning'});
         }
     };
 
@@ -203,7 +203,7 @@ export const ListarFerragem = () => {
                             ':hover': {
                                 color: '#3d3835',
                                 bgcolor: 'rgba(102, 0, 0, 0.5)',
-                            },
+                            }
                         }}/>
 
                     <CustomButton
@@ -243,8 +243,6 @@ export const ListarFerragem = () => {
                 message="Tem certeza que deseja deletar esta ferragem selecionada?"
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setOpenDialog(false)}
-            />
-
-        </Box>
+            /></Box>
     );
 };

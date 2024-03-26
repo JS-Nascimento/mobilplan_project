@@ -21,28 +21,41 @@ import {
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {opcoesTipoMontagemFundo} from "./TipoMontagemFundo";
+import {opcoesPadraoDeFitagem} from "./PadraoDeFitagem";
 import {CustomTooltipHelper} from "../../components/CustomTooltipHelper/TololtipHelper";
 import CustomSwitch from "../../components/CustomSwitch";
+import {ConfiguracaoFabricacao} from "../../types/configuracao-fabricacao";
 
-interface FormState {
-    tipoMontagemFundo: string;
-    espessuraFundoGaveta: number;
-    rebaixoFundoGaveta: number;
-    folgaTrilhosGaveta: number;
-    folgaProfunidadeGavetaEmRelacaoGabinete: number;
-    acompanhaTrilhoGaveta: boolean;
-    // Adicione mais campos conforme necessário
-}
-
-const FormularioEdicaoComAbas = () => {
-    const [formState, setFormState] = useState<FormState>({
+const FormularioEdicaoComAbas: React.FC = () => {
+    const [formState, setFormState] = useState<ConfiguracaoFabricacao>({
+        id: 0,
+        descricao: '',
         tipoMontagemFundo: '',
         espessuraFundoGaveta: 0,
         rebaixoFundoGaveta: 0,
         folgaTrilhosGaveta: 0,
-        folgaProfunidadeGavetaEmRelacaoGabinete: 0,
         acompanhaTrilhoGaveta: false,
-        // Inicialize mais campos conforme necessário
+        folgaProfunidadeGavetaEmRelacaoGabinete: 0,
+        corpoEmRelacaoFrenteGaveta: 0,
+        espessuraCorpoGaveta: 0,
+        folgaSuperiorPortaGiro: 0,
+        folgaInferiorPortaGiro: 0,
+        folgaEsquerdaPortaGiro: 0,
+        folgaDireitaPortaGiro: 0,
+        entreComponentesPortaGiro: 0,
+        basePadraoFitagem: '',
+        lateralPadraoFitagem: '',
+        travessaHorizontalPadraoFitagem: '',
+        travessaVerticalPadraoFitagem: '',
+        fundoPadraoFitagem: '',
+        prateleiraInternaPadraoFitagem: '',
+        prateleiraExternaPadraoFitagem: '',
+        tampoPadraoFitagem: '',
+        portaPadraoFitagem: '',
+        frenteGavetaPadraoFitagem: '',
+        criadoEm: new Date(),
+        alteradoEm: new Date(),
+        tenantId: '',
     });
     const [activeTab, setActiveTab] = useState(0);
 
@@ -56,7 +69,7 @@ const FormularioEdicaoComAbas = () => {
     };
 
     const handleSwitchChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setFormState({ ...formState, [e.target.name]: e.target.checked });
+        setFormState({...formState, [e.target.name]: e.target.checked});
     };
     const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setActiveTab(newValue);
@@ -90,7 +103,98 @@ const FormularioEdicaoComAbas = () => {
                     {activeTab === 0 && (
                         // Conteúdo da aba "Geral"
                         <Grid container spacing={2}>
-                            {/* Campos relacionados à configuração geral */}
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita na Base</InputLabel>
+                                    <Select
+                                        name="basePadraoFitagem"
+                                        value={formState.basePadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita na Base"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita na Base do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita na Lateral</InputLabel>
+                                    <Select
+                                        name="lateralPadraoFitagem"
+                                        value={formState.lateralPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita na Lateral"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita na Lateral do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita na Travessa Horizontal</InputLabel>
+                                    <Select
+                                        name="travessaHorizontalPadraoFitagem"
+                                        value={formState.travessaHorizontalPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita na Travessa Horizontal"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita na Travessa Horizontal do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita na Travessa Vertical</InputLabel>
+                                    <Select
+                                        name="travessaVerticalPadraoFitagem"
+                                        value={formState.travessaVerticalPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita na Travessa Vertical"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita na Travessa Vertical do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
                         </Grid>
                     )}
                     {activeTab === 1 && (
@@ -120,17 +224,24 @@ const FormularioEdicaoComAbas = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
-                                <CustomTooltipHelper
-                                    title="Espessura do Fundo da Gaveta"
-                                    imageSrc='/assets/configs/espessura-fundo.png'
-                                />
+
                                 <TextField
                                     fullWidth
                                     type="number"
                                     label="Espessura do Fundo da Gaveta ( MM )"
                                     name="espessuraFundoGaveta"
                                     value={formState.espessuraFundoGaveta}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
                                     onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Espessura do Fundo da Gaveta"
+                                    imageSrc='/assets/configs/espessura-fundo.png'
                                 />
                             </Grid>
                             <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
@@ -141,6 +252,12 @@ const FormularioEdicaoComAbas = () => {
                                     label="Profundidade do Rebaixo do Fundo da Gaveta ( MM )"
                                     name="rebaixoFundoGaveta"
                                     value={formState.rebaixoFundoGaveta}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
                                     onChange={handleChange}
                                 />
                                 <CustomTooltipHelper
@@ -149,17 +266,24 @@ const FormularioEdicaoComAbas = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
-                                <CustomTooltipHelper
-                                    title="Espessura do Fundo da Gaveta"
-                                    imageSrc='/assets/configs/folga-trilho.jpg'
-                                />
+
                                 <TextField
                                     fullWidth
                                     type="number"
                                     label="Folga referente ao Trilho da gaveta ( MM )"
                                     name="folgaTrilhosGaveta"
                                     value={formState.folgaTrilhosGaveta}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
                                     onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Espessura do Fundo da Gaveta"
+                                    imageSrc='/assets/configs/folga-trilho.jpg'
                                 />
                             </Grid>
                             <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
@@ -173,7 +297,7 @@ const FormularioEdicaoComAbas = () => {
                                                 name="acompanhaTrilhoGaveta"
                                             />
                                         }
-                                        label="Acompanha profundidade do Trilho ?"
+                                        label="Gaveta acompanha comprimento do trilho ?"
                                     />
                                 </FormGroup>
                                 <CustomTooltipHelper
@@ -182,17 +306,67 @@ const FormularioEdicaoComAbas = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
-                                <CustomTooltipHelper
-                                    title="Folga da Gaveta em relação ao Gabinete"
-                                    imageSrc='/assets/configs/folgaProfundidadeEmRelacaoGabinete.png'
-                                />
+
                                 <TextField
                                     fullWidth
                                     type="number"
-                                    label="Folga da Gaveta em relação ao Gabinete ( MM )"
+                                    label="Folga da profundidade da Gaveta em relação ao Gabinete ( MM )"
                                     name="folgaProfunidadeGavetaEmRelacaoGabinete"
                                     value={formState.folgaProfunidadeGavetaEmRelacaoGabinete}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
                                     onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga da profundidade da Gaveta em relação ao Gabinete"
+                                    imageSrc='/assets/configs/folgaProfundidadeEmRelacaoGabinete.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Folga entre a altura do Corpo da Gaveta e a Frente da Gaveta ( MM )"
+                                    name="corpoEmRelacaoFrenteGaveta"
+                                    value={formState.corpoEmRelacaoFrenteGaveta}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga entre a altura do Corpo da Gaveta e a Frente da Gaveta"
+                                    imageSrc='/assets/configs/Frente-ContraFrente.jpg'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Espessura da Chapa para Corpo da Gaveta ( MM )"
+                                    name="espessuraCorpoGaveta"
+                                    value={formState.espessuraCorpoGaveta}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Espessura da Chapa para Corpo da Gaveta"
+                                    imageSrc='/assets/configs/Frente-ContraFrente.jpg'
                                 />
                             </Grid>
                         </Grid>
@@ -200,7 +374,114 @@ const FormularioEdicaoComAbas = () => {
                     {activeTab === 2 && (
                         // Conteúdo da aba "Portas"
                         <Grid container spacing={2}>
-                            {/* Campos relacionados à configuração de portas */}
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Folga superior da porta em relação ao Gabinete ( MM )"
+                                    name="folgaSuperiorPortaGiro"
+                                    value={formState.folgaSuperiorPortaGiro}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga superior da porta em relação ao Gabinete"
+                                    imageSrc='/assets/configs/folga-superior.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Folga inferior da porta em relação ao Gabinete ( MM )"
+                                    name="folgaInferiorPortaGiro"
+                                    value={formState.folgaInferiorPortaGiro}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga inferior da porta em relação ao Gabinete"
+                                    imageSrc='/assets/configs/folga-inferior.png'
+                                />
+
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Folga esquerda da porta em relação ao Gabinete ( MM )"
+                                    name="folgaEsquerdaPortaGiro"
+                                    value={formState.folgaEsquerdaPortaGiro}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga esquerda da porta em relação ao Gabinete"
+                                    imageSrc='/assets/configs/folga-lateral.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Folga direita da porta em relação ao Gabinete ( MM )"
+                                    name="folgaDireitaPortaGiro"
+                                    value={formState.folgaDireitaPortaGiro}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga direita da porta em relação ao Gabinete"
+                                    imageSrc='/assets/configs/folga-lateral.png'
+                                />
+
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Folga entre portas ( MM )"
+                                    name="entreComponentesPortaGiro"
+                                    value={formState.entreComponentesPortaGiro}
+                                    InputProps={{
+                                        inputProps: {
+                                            min: 0,
+                                            step: 1,
+                                        },
+                                    }}
+                                    onChange={handleChange}
+                                />
+                                <CustomTooltipHelper
+                                    title="Folga em portas de giro entre componentes"
+                                    imageSrc='/assets/configs/folga-entre-componentes.png'
+                                />
+                            </Grid>
+
                         </Grid>
                     )}
                     {/* Conteúdo das demais abas conforme necessário */}

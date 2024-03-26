@@ -1,0 +1,30 @@
+export interface ConfiguracaoFabricacao {
+    id:                                      number;
+    descricao:                               string;
+    tipoMontagemFundo:                       string;
+    espessuraFundoGaveta:                    number;
+    rebaixoFundoGaveta:                      number;
+    folgaTrilhosGaveta:                      number;
+    acompanhaTrilhoGaveta:                   boolean;
+    folgaProfunidadeGavetaEmRelacaoGabinete: number;
+    corpoEmRelacaoFrenteGaveta:              number;
+    espessuraCorpoGaveta:                    number;
+    folgaSuperiorPortaGiro:                  number;
+    folgaInferiorPortaGiro:                  number;
+    folgaEsquerdaPortaGiro:                  number;
+    folgaDireitaPortaGiro:                   number;
+    entreComponentesPortaGiro:               number;
+    basePadraoFitagem:                       string;
+    lateralPadraoFitagem:                    string;
+    travessaHorizontalPadraoFitagem:         string;
+    travessaVerticalPadraoFitagem:           string;
+    fundoPadraoFitagem:                      string;
+    prateleiraInternaPadraoFitagem:          string;
+    prateleiraExternaPadraoFitagem:          string;
+    tampoPadraoFitagem:                      string;
+    portaPadraoFitagem:                      string;
+    frenteGavetaPadraoFitagem:               string;
+    criadoEm:                                Date;
+    alteradoEm:                              Date;
+    tenantId:                                string;
+}
