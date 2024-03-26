@@ -1,30 +1,29 @@
 import React, {ChangeEvent, useState} from 'react';
 import {
     Box,
-    Grid,
-    Paper,
-    Typography,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    FormGroup,
-    FormControlLabel,
-    Switch,
-    Tooltip,
-    IconButton,
     Container,
+    FormControl,
+    FormControlLabel,
+    FormGroup,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    SelectChangeEvent,
     Tab,
     Tabs,
-    SelectChangeEvent,
+    TextField,
+    Typography,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {opcoesTipoMontagemFundo} from "./TipoMontagemFundo";
 import {opcoesPadraoDeFitagem} from "./PadraoDeFitagem";
 import {CustomTooltipHelper} from "../../components/CustomTooltipHelper/TololtipHelper";
 import CustomSwitch from "../../components/CustomSwitch";
 import {ConfiguracaoFabricacao} from "../../types/configuracao-fabricacao";
+import {AtualizadoEmLabel, CriadoEmLabel} from "../../components/DateAuditLabel/DateAuditLabel";
+import BotaoSecundario from "../../components/CustomButtons/BotaoSecundario";
+import BotaoPrimario from "../../components/CustomButtons/BotaoPrimario";
 
 const FormularioEdicaoComAbas: React.FC = () => {
     const [formState, setFormState] = useState<ConfiguracaoFabricacao>({
@@ -53,8 +52,8 @@ const FormularioEdicaoComAbas: React.FC = () => {
         tampoPadraoFitagem: '',
         portaPadraoFitagem: '',
         frenteGavetaPadraoFitagem: '',
-        criadoEm: new Date(),
-        alteradoEm: new Date(),
+        criadoEm: '',
+        alteradoEm: '',
         tenantId: '',
     });
     const [activeTab, setActiveTab] = useState(0);
@@ -77,20 +76,10 @@ const FormularioEdicaoComAbas: React.FC = () => {
 
     return (
         <Container maxWidth="lg">
-            <Typography
-                sx={{
-
-                    typography: {
-                        xs: "h6",
-                        sm: "h6",
-                        md: "h5",
-                        lg: "h5",
-                    },
-                }}
-                gutterBottom>
+            <Typography sx={{typography: {xs: "h6", sm: "h6", md: "h5", lg: "h5"}}} gutterBottom>
                 Configurações de Fabricação
             </Typography>
-            <Paper elevation={3} sx={{p: 2, overflow: 'auto', height: 720, maxHeight: 720}}>
+            <Paper elevation={3} sx={{p: 2, overflow: 'auto', height: 720, maxHeight: 720, display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                     <Tabs value={activeTab} onChange={handleTabChange} aria-label="Configurações de fabricação">
                         <Tab label="Geral"/>
@@ -99,7 +88,7 @@ const FormularioEdicaoComAbas: React.FC = () => {
                         {/* Adicione mais abas conforme necessário */}
                     </Tabs>
                 </Box>
-                <Box p={3}>
+                <Box p={3} sx={{flexGrow: 1, overflow: 'auto'}}>
                     {activeTab === 0 && (
                         // Conteúdo da aba "Geral"
                         <Grid container spacing={2}>
@@ -192,6 +181,144 @@ const FormularioEdicaoComAbas: React.FC = () => {
                                 </FormControl>
                                 <CustomTooltipHelper
                                     title="Padrão de Acabamento de Fita na Travessa Vertical do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita no Fundo</InputLabel>
+                                    <Select
+                                        name="fundoPadraoFitagem"
+                                        value={formState.fundoPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita no Fundo"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita no Fundo do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita na Prateleira Interna</InputLabel>
+                                    <Select
+                                        name="prateleiraInternaPadraoFitagem"
+                                        value={formState.prateleiraInternaPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita na Prateleira Interna"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita na Prateleira Interna do Gabinete"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita na Prateleira Externa</InputLabel>
+                                    <Select
+                                        name="prateleiraExternaPadraoFitagem"
+                                        value={formState.prateleiraExternaPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita na Prateleira Externa"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita na Prateleira Externa"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita em Tampos</InputLabel>
+                                    <Select
+                                        name="tampoPadraoFitagem"
+                                        value={formState.tampoPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita em Tampos"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita em Tampos diversos"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita em Portas</InputLabel>
+                                    <Select
+                                        name="portaPadraoFitagem"
+                                        value={formState.portaPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita em Portas"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita em Portas"
+                                    imageSrc='/assets/configs/ambos-tipos.png'
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6} sx={{display: 'flex', alignItems: 'center'}}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Acabamento de Fita em Frentes de Gaveta</InputLabel>
+                                    <Select
+                                        name="frenteGavetaPadraoFitagem"
+                                        value={formState.frenteGavetaPadraoFitagem}
+                                        onChange={handleChange}
+                                        label="Acabamento de Fita em Frentes de Gaveta"
+                                    >
+                                        {opcoesPadraoDeFitagem.map((opcao) => (
+                                            <MenuItem key={opcao.value} value={opcao.name}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                                                    {opcao.name}
+                                                </Box>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <CustomTooltipHelper
+                                    title="Padrão de Acabamento de Fita em Frentes de Gaveta"
                                     imageSrc='/assets/configs/ambos-tipos.png'
                                 />
                             </Grid>
@@ -484,7 +611,24 @@ const FormularioEdicaoComAbas: React.FC = () => {
 
                         </Grid>
                     )}
-                    {/* Conteúdo das demais abas conforme necessário */}
+                </Box>
+                <Box sx={{mt: 'auto'}}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} display="flex" justifyContent="flex-end">
+                            <CriadoEmLabel data={formState?.criadoEm || ""}/>
+                            <Box ml={4}></Box>
+                            <AtualizadoEmLabel data={formState?.alteradoEm || ""}/>
+                        </Grid>
+                        <Grid item xs={12} display="flex" justifyContent="flex-start">
+                            <BotaoSecundario largura={200} onClick={() => console.log('cliquei aqui')}>
+                                Voltar
+                            </BotaoSecundario>
+                            <Box ml={1}></Box>
+                            <BotaoPrimario type="submit" disabled={false} sx={{width: 200}}>
+                                Salvar
+                            </BotaoPrimario>
+                        </Grid>
+                    </Grid>
                 </Box>
             </Paper>
         </Container>

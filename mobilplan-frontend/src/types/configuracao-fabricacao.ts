@@ -24,7 +24,7 @@ export interface ConfiguracaoFabricacao {
     tampoPadraoFitagem:                      string;
     portaPadraoFitagem:                      string;
     frenteGavetaPadraoFitagem:               string;
-    criadoEm:                                Date;
-    alteradoEm:                              Date;
+    criadoEm:                                string;
+    alteradoEm:                              string;
     tenantId:                                string;
 }

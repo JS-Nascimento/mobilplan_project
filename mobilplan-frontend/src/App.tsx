@@ -14,7 +14,6 @@ import {CriarFerragem} from "./features/materiaPrima/ferragem/CriarFerragem";
 import {AlterarFerragem} from "./features/materiaPrima/ferragem/AlterarFerragem";
 import {selectIsAuthenticated, setAuthenticated, setToken, setUserDetails} from "./features/auth/authSlice";
 import {ImportarLote} from "./features/materiaPrima/ferragem/ImportarLote";
-import EditarConfiguracoes from "./features/configuracoes/EditarConfiguracoes";
 import EditarConfiguracoesComAbas from "./features/configuracoes/EditarConfiguracoesComAbas";
 
 
